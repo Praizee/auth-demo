@@ -8,21 +8,20 @@ class User(AbstractUser):
     email is used as the display/contact field; username remains the login key.
     """
 
-    ROLE_CHOICES = (
-        ("admin", "Admin"),
-        ("user", "User"),
-    )
+    class Role(models.TextChoices):
+        MEMBER = "Member", "Member"
+        ADMIN = "Admin", "Admin"
 
     email = models.EmailField(unique=True)
+    bio = models.TextField(blank=True, default="")
     role = models.CharField(
         max_length=20,
-        choices=ROLE_CHOICES,
-        default="user"
+        choices=Role.choices,
+        default=Role.MEMBER,
     )
-    bio = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "users"
 
-    def __str__(self) -> str:
+    def str(self) -> str:
         return self.username
