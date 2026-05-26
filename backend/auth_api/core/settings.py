@@ -3,7 +3,7 @@ import environ
 from pathlib import Path
 from datetime import timedelta
 
-BASE_DIR = Path(file).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(BASE_DIR / ".env")
 
@@ -82,6 +82,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 
-# Set CORS_ALLOWED_ORIGINS as a comma-separated list in your environment, e.g.:
-# CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,https://localhost:5173
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
+# In development (DEBUG=True) allow all origins so localhost works without config.
+# In production set CORS_ALLOWED_ORIGINS in your Railway env vars, e.g.:
+#   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = env.list(
+        "CORS_ALLOWED_ORIGINS",
+        default=["https://auth-demo-bay.vercel.app"],
+    )
