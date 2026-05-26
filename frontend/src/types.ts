@@ -10,5 +10,6 @@ export type User = {
 
 export type AuthPayload = {
   token: string
+  refresh: string
   user: User
 }

@@ -95,7 +95,7 @@ async function runDemoRequest<T>(
   const body = options.body ? JSON.parse(String(options.body)) : {}
   const users = getDemoUsers()
 
-  if (path === '/auth/signup') {
+  if (path === '/auth/signup/') {
     const existingUser = users.find(
       (user) => user.email.toLowerCase() === body.email.toLowerCase(),
     )
@@ -116,11 +116,12 @@ async function runDemoRequest<T>(
 
     return {
       token: makeDemoToken(user.id),
+      refresh: makeDemoToken(user.id),
       user: stripPassword(user),
     } as T
   }
 
-  if (path === '/auth/login') {
+  if (path === '/auth/login/') {
     const user = users.find(
       (record) =>
         record.email.toLowerCase() === body.email.toLowerCase() &&
@@ -133,11 +134,12 @@ async function runDemoRequest<T>(
 
     return {
       token: makeDemoToken(user.id),
+      refresh: makeDemoToken(user.id),
       user: stripPassword(user),
     } as T
   }
 
-  if (path === '/me' && options.method === 'PATCH') {
+  if (path === '/auth/profile/' && options.method === 'PATCH') {
     const session = getSavedSession()
     if (!session || !options.token) {
       throw new Error('Please log in again.')
