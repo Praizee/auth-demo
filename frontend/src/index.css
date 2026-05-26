@@ -1,0 +1,55 @@
+:root {
+  --ink: #161512;
+  --muted: #67635a;
+  --paper: #f7f3ea;
+  --panel: #fffaf0;
+  --line: #ded5c7;
+  --charcoal: #27251f;
+  --green: #23664a;
+  --green-dark: #194a38;
+  --gold: #d59c36;
+  --red: #a4432f;
+  --shadow: 0 24px 70px rgba(39, 37, 31, 0.16);
+  --font-main: Avenir Next, Trebuchet MS, Verdana, sans-serif;
+  --font-display: Georgia, Times New Roman, serif;
+
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(39, 37, 31, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(39, 37, 31, 0.04) 1px, transparent 1px),
+    var(--paper);
+  background-size: 42px 42px;
+  font: 16px/1.5 var(--font-main);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100svh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+#root {
+  min-height: 100svh;
+}
