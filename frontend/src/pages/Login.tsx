@@ -1,7 +1,10 @@
 import { type FormEvent, useState } from 'react'
+import { toast } from 'sonner'
 import { useAuth } from '../auth/useAuth'
+import { PasswordField } from '../components/PasswordField'
 import { handleNav } from '../lib/navigation'
 import { navigate } from '../lib/router'
+import { validateEmail, validatePassword } from '../lib/validation'
 
 export function LoginPage() {
   const { login } = useAuth()
@@ -13,17 +16,27 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
+
+    const validationError = validateEmail(email) || validatePassword(password)
+    if (validationError) {
+      setError(validationError)
+      toast.error(validationError)
+      return
+    }
+
     setIsLoading(true)
 
     try {
       await login(email.trim(), password)
+      toast.success('Logged in successfully.')
       navigate('/dashboard')
     } catch (caughtError) {
-      setError(
+      const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'Something went wrong.',
-      )
+          : 'Something went wrong.'
+      setError(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -34,10 +47,11 @@ export function LoginPage() {
       <form className="form-card" onSubmit={handleSubmit}>
         <h1>Login</h1>
 
-        <label>
+        <label htmlFor="login-email">
           Email
           <input
             autoComplete="email"
+            id="login-email"
             onChange={(event) => setEmail(event.target.value)}
             required
             type="email"
@@ -45,17 +59,13 @@ export function LoginPage() {
           />
         </label>
 
-        <label>
-          Password
-          <input
-            autoComplete="current-password"
-            minLength={8}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            type="password"
-            value={password}
-          />
-        </label>
+        <PasswordField
+          autoComplete="current-password"
+          id="login-password"
+          label="Password"
+          onChange={setPassword}
+          value={password}
+        />
 
         {error && <p className="error">{error}</p>}
 

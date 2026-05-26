@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Toaster } from "sonner";
 import { AuthProvider } from "./auth/AuthContext";
 import { useAuth } from "./auth/useAuth";
 import { getRoute, navigate } from "./lib/router";
@@ -13,6 +14,7 @@ function App() {
   return (
     <AuthProvider>
       <Router />
+      <Toaster richColors position="top-center" />
     </AuthProvider>
   );
 }
