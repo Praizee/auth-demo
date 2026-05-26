@@ -1,4 +1,5 @@
-import environ
+import os
+mport environ
 from pathlib import Path
 from datetime import timedelta
 
@@ -8,7 +9,10 @@ environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("SECRET_KEY", default="change-me-in-production")
 DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"]) + [
+    os.environ.get("RAILWAY_STATIC_URL", ""),
+    os.environ.get("RAILWAY_PUBLIC_DOMAIN", ""),
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
