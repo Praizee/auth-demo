@@ -3,7 +3,7 @@ import { PageNav } from '../components/PageNav'
 import { handleNav } from '../lib/navigation'
 
 export function DashboardPage() {
-  const { user, token, logout } = useAuth()
+  const { user, logout } = useAuth()
 
   if (!user) {
     return null
@@ -18,7 +18,6 @@ export function DashboardPage() {
         <p>Email: {user.email}</p>
         <p>Role: {user.role}</p>
         <p>Bio: {user.bio}</p>
-        <p className="token">Token: {token}</p>
 
         <div className="actions">
           <a href="/profile" onClick={(event) => handleNav(event, '/profile')}>
