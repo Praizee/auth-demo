@@ -1,17 +1,18 @@
+import { type ReactNode, useMemo, useState } from "react";
 import {
-  type ReactNode,
-  useMemo,
-  useState,
-} from 'react'
-import { apiRequest, clearSession, getSavedSession, saveSession } from '../lib/api'
-import { navigate } from '../lib/router'
-import type { AuthPayload, User } from '../types'
-import { AuthContext, type AuthContextValue } from './authContext'
+  apiRequest,
+  clearSession,
+  getSavedSession,
+  saveSession,
+} from "../lib/api";
+import { navigate } from "../lib/router";
+import type { AuthPayload, User } from "../types";
+import { AuthContext, type AuthContextValue } from "./authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthPayload | null>(() =>
     getSavedSession(),
-  )
+  );
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -19,43 +20,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: session?.token ?? null,
       isAuthed: Boolean(session),
       async login(email, password) {
-        const payload = await apiRequest<AuthPayload>('/auth/login', {
-          method: 'POST',
-          body: JSON.stringify({ email, password }),
-        })
-        saveSession(payload)
-        setSession(payload)
+        const payload = await apiRequest<AuthPayload>("/auth/login/", {
+          method: "POST",
+          body: JSON.stringify({ username: email, password }),
+        });
+        saveSession(payload);
+        setSession(payload);
       },
       async signup(name, email, password) {
-        const payload = await apiRequest<AuthPayload>('/auth/signup', {
-          method: 'POST',
-          body: JSON.stringify({ name, email, password }),
-        })
-        saveSession(payload)
-        setSession(payload)
+        const payload = await apiRequest<AuthPayload>("/auth/signup/", {
+          method: "POST",
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            password_confirm: password,
+          }),
+        });
+        saveSession(payload);
+        setSession(payload);
       },
       logout() {
-        clearSession()
-        setSession(null)
-        navigate('/login')
+        clearSession();
+        setSession(null);
+        navigate("/login");
       },
       async updateProfile(profile) {
         if (!session?.token) {
-          throw new Error('Please log in again.')
+          throw new Error("Please log in again.");
         }
 
-        const user = await apiRequest<User>('/me', {
-          method: 'PATCH',
+        const user = await apiRequest<User>("/auth/profile/", {
+          method: "PATCH",
           token: session.token,
           body: JSON.stringify(profile),
-        })
-        const nextSession = { token: session.token, user }
-        saveSession(nextSession)
-        setSession(nextSession)
+        });
+        const nextSession = {
+          token: session.token,
+          refresh: session.refresh,
+          user,
+        };
+        saveSession(nextSession);
+        setSession(nextSession);
       },
     }),
     [session],
-  )
+  );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
