@@ -1,5 +1,9 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd backend/auth-api && python manage.py collectstatic --noinput"
+  },
   "deploy": {
     "startCommand": "cd backend/auth-api && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT",
     "restartPolicyType": "ON_FAILURE",
