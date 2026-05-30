@@ -1,46 +1,70 @@
-import { type FormEvent, useState } from 'react'
-import { toast } from 'sonner'
-import { useAuth } from '../auth/useAuth'
-import { PasswordField } from '../components/PasswordField'
-import { handleNav } from '../lib/navigation'
-import { navigate } from '../lib/router'
-import { validateEmail, validateName, validatePassword } from '../lib/validation'
+import { type FormEvent, useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "../auth/useAuth";
+import { PasswordField } from "../components/PasswordField";
+import { handleNav } from "../lib/navigation";
+import { navigate } from "../lib/router";
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+} from "../lib/validation";
 
 export function SignupPage() {
-  const { signup } = useAuth()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const { signup } = useAuth();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
+    event.preventDefault();
+    setError("");
 
     const validationError =
-      validateName(name) || validateEmail(email) || validatePassword(password)
+      validateName(firstName) ||
+      validateName(lastName) ||
+      validateEmail(email) ||
+      validatePassword(password);
     if (validationError) {
-      setError(validationError)
-      toast.error(validationError)
-      return
+      setError(validationError);
+      toast.error(validationError);
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await signup(name.trim(), email.trim(), password)
-      toast.success('Account created.')
-      navigate('/dashboard')
+      await signup(firstName.trim(), lastName.trim(), email.trim(), password);
+      toast.success("Account created.");
+      navigate("/dashboard");
     } catch (caughtError) {
+      if (caughtError instanceof Error) {
+        try {
+          const errorData = JSON.parse(caughtError.message);
+          if (errorData.errors && Array.isArray(errorData.errors)) {
+            const messages = errorData.errors
+              .map((err: { message: string }) => err.message)
+              .join(" ");
+            setError(messages);
+            toast.error(messages);
+            return;
+          }
+        } catch (e) {
+          // Not a JSON error from the backend, use the error message directly
+        }
+      }
+
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'Something went wrong.'
-      setError(message)
-      toast.error(message)
+          : "Something went wrong.";
+      setError(message);
+      toast.error(message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -49,15 +73,27 @@ export function SignupPage() {
       <form className="form-card" onSubmit={handleSubmit}>
         <h1>Signup</h1>
 
-        <label htmlFor="signup-name">
-          Name
+        <label htmlFor="signup-firstName">
+          First Name
           <input
-            autoComplete="name"
-            id="signup-name"
+            autoComplete="given-name"
+            id="signup-firstName"
             minLength={2}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => setFirstName(event.target.value)}
             required
-            value={name}
+            value={firstName}
+          />
+        </label>
+
+        <label htmlFor="signup-lastName">
+          Last Name
+          <input
+            autoComplete="family-name"
+            id="signup-lastName"
+            minLength={2}
+            onChange={(event) => setLastName(event.target.value)}
+            required
+            value={lastName}
           />
         </label>
 
@@ -84,16 +120,17 @@ export function SignupPage() {
         {error && <p className="error">{error}</p>}
 
         <button disabled={isLoading} type="submit">
-          {isLoading ? 'Creating...' : 'Signup'}
+          {isLoading ? "Creating..." : "Signup"}
         </button>
 
         <p>
-          Have an account?{' '}
-          <a href="/login" onClick={(event) => handleNav(event, '/login')}>
+          Have an account?{" "}
+          <a href="/login" onClick={(event) => handleNav(event, "/login")}>
             Login
           </a>
         </p>
       </form>
     </main>
-  )
+  );
 }
+

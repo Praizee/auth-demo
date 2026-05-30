@@ -1,50 +1,56 @@
-import { type FormEvent, useState } from 'react'
-import { toast } from 'sonner'
-import { useAuth } from '../auth/useAuth'
-import { PageNav } from '../components/PageNav'
-import { validateBio, validateName } from '../lib/validation'
+import { type FormEvent, useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "../auth/useAuth";
+import { PageNav } from "../components/PageNav";
+import { validateBio, validateName } from "../lib/validation";
 
 export function ProfilePage() {
-  const { user, updateProfile } = useAuth()
-  const [name, setName] = useState(user?.name ?? '')
-  const [bio, setBio] = useState(user?.bio ?? '')
-  const [notice, setNotice] = useState('')
-  const [noticeType, setNoticeType] = useState<'error' | 'success'>('success')
-  const [isLoading, setIsLoading] = useState(false)
+  const { user, updateProfile } = useAuth();
+  const [firstName, setFirstName] = useState(user?.firstName ?? "");
+  const [lastName, setLastName] = useState(user?.lastName ?? "");
+  const [bio, setBio] = useState(user?.bio ?? "");
+  const [notice, setNotice] = useState("");
+  const [noticeType, setNoticeType] = useState<"error" | "success">("success");
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!user) {
-    return null
+    return null;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setNotice('')
+    event.preventDefault();
+    setNotice("");
 
-    const validationError = validateName(name) || validateBio(bio)
+    const validationError =
+      validateName(firstName) || validateName(lastName) || validateBio(bio);
     if (validationError) {
-      setNotice(validationError)
-      setNoticeType('error')
-      toast.error(validationError)
-      return
+      setNotice(validationError);
+      setNoticeType("error");
+      toast.error(validationError);
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await updateProfile({ name: name.trim(), bio: bio.trim() })
-      setNotice('Profile updated.')
-      setNoticeType('success')
-      toast.success('Profile updated.')
+      await updateProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        bio: bio.trim(),
+      });
+      setNotice("Profile updated.");
+      setNoticeType("success");
+      toast.success("Profile updated.");
     } catch (caughtError) {
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'Could not update profile.'
-      setNotice(message)
-      setNoticeType('error')
-      toast.error(message)
+          : "Could not update profile.";
+      setNotice(message);
+      setNoticeType("error");
+      toast.error(message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -54,14 +60,25 @@ export function ProfilePage() {
         <PageNav />
         <h1>Edit profile</h1>
 
-        <label htmlFor="profile-name">
-          Name
+        <label htmlFor="profile-firstName">
+          First Name
           <input
-            id="profile-name"
+            id="profile-firstName"
             minLength={2}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => setFirstName(event.target.value)}
             required
-            value={name}
+            value={firstName}
+          />
+        </label>
+
+        <label htmlFor="profile-lastName">
+          Last Name
+          <input
+            id="profile-lastName"
+            minLength={2}
+            onChange={(event) => setLastName(event.target.value)}
+            required
+            value={lastName}
           />
         </label>
 
@@ -77,12 +94,17 @@ export function ProfilePage() {
           />
         </label>
 
-        {notice && <p className={noticeType === 'error' ? 'error' : 'notice'}>{notice}</p>}
+        {notice && (
+          <p className={noticeType === "error" ? "error" : "notice"}>
+            {notice}
+          </p>
+        )}
 
         <button disabled={isLoading} type="submit">
-          {isLoading ? 'Saving...' : 'Save'}
+          {isLoading ? "Saving..." : "Save"}
         </button>
       </form>
     </main>
-  )
+  );
 }
+

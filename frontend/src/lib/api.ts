@@ -14,7 +14,8 @@ const API_URL =
 const starterUsers: DemoUserRecord[] = [
   {
     id: "demo-user",
-    name: "Mira Stone",
+    firstName: "Mira",
+    lastName: "Stone",
     email: "mira@example.com",
     password: "password123",
     role: "Member",
@@ -108,7 +109,8 @@ async function runDemoRequest<T>(
 
     const user: DemoUserRecord = {
       id: crypto.randomUUID(),
-      name: body.name,
+      firstName: body.first_name,
+      lastName: body.last_name,
       email: body.email,
       password: body.password,
       role: "Member",
@@ -149,7 +151,12 @@ async function runDemoRequest<T>(
 
     const nextUsers = users.map((record) =>
       record.id === session.user.id
-        ? { ...record, name: body.name, bio: body.bio }
+        ? {
+            ...record,
+            firstName: body.first_name,
+            lastName: body.last_name,
+            bio: body.bio,
+          }
         : record,
     );
     saveDemoUsers(nextUsers);
@@ -189,9 +196,11 @@ function makeDemoToken(userId: string) {
 function stripPassword(record: DemoUserRecord): User {
   return {
     id: record.id,
-    name: record.name,
+    firstName: record.firstName,
+    lastName: record.lastName,
     email: record.email,
     role: record.role,
     bio: record.bio,
   };
 }
+
