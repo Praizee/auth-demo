@@ -12,9 +12,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", False)
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[
-    ".railway.app", "localhost", "127.0.0.1", "0.0.0.0"
-])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[".railway.app", "localhost", "127.0.0.1", "*"])
 
 # ====================== INSTALLED APPS ======================
 INSTALLED_APPS = [
@@ -52,6 +50,23 @@ DATABASES = {
     "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR}/db.sqlite3")
 }
 
+# ====================== TEMPLATES (FIXED) ======================
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
 # ====================== REST FRAMEWORK ======================
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -72,13 +87,7 @@ SIMPLE_JWT = {
 # ====================== CORS ======================
 from corsheaders.defaults import default_headers
 
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "authorization",
-    "content-type",
-    "accept",
-    "origin",
-    "x-csrftoken",
-]
+CORS_ALLOW_HEADERS = list(default_headers) + ["authorization", "content-type"]
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
@@ -88,8 +97,8 @@ else:
         "CORS_ALLOWED_ORIGINS",
         default=["https://auth-demo-bay.vercel.app"]
     )
-    CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=True)
+    CORS_ALLOW_CREDENTIALS = True
 
-# ====================== STATIC & MISC ======================
+# ====================== STATIC ======================
 STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
