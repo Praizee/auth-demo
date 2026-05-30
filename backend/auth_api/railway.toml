@@ -1,6 +1,9 @@
 [build]
 builder = "nixpacks"
 
+[env]
+CORS_ALLOWED_ORIGINS = "https://auth-demo-bay.vercel.app"
+
 [deploy]
 startCommand = "gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"
 healthcheckPath = "/api/auth/login/"
