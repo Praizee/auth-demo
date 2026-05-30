@@ -40,6 +40,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "core.urls"
+WSGI_APPLICATION = "core.wsgi.application"
 AUTH_USER_MODEL = "auth_app.User"
 
 TEMPLATES = [
