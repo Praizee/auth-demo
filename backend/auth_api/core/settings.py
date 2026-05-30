@@ -88,8 +88,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
 else:
     CORS_ALLOWED_ORIGINS = env.list(
         "CORS_ALLOWED_ORIGINS",
         default=["https://auth-demo-bay.vercel.app"],
     )
+
+# Allow Vite dev origins if the backend accidentally runs in a non-debug local environment.
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost(:[0-9]+)?$",
+    r"^http://127\.0\.0\.1(:[0-9]+)?$",
+]
