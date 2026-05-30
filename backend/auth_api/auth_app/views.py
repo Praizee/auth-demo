@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,6 +22,25 @@ def _build_token_response(user):
     }
 
 
+class HealthCheckView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+            db_status = "connected"
+        except Exception as e:
+            db_status = f"error: {str(e)}"
+
+        return Response({
+            "status": "ok",
+            "database": db_status,
+            "environment": "production",
+        }, status=200)
+
+
 class SignUpView(generics.CreateAPIView):
     serializer_class = SignUpSerializer
     permission_classes = [permissions.AllowAny]
@@ -42,20 +61,16 @@ class LoginView(APIView):
         password = request.data.get("password")
 
         if not username or not password:
-            return Response(
-                {"detail": "username and password are required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"detail": "username and password are required."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(email__iexact=username).first()
         if user is None:
             user = User.objects.filter(username=username).first()
 
         if user is None or not user.check_password(password):
-            return Response(
-                {"detail": "Invalid credentials."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            return Response({"detail": "Invalid credentials."},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(_build_token_response(user), status=status.HTTP_200_OK)
 
@@ -74,25 +89,12 @@ class LogoutView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class HealthCheckView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        return Response({"status": "ok"}, status=status.HTTP_200_OK)
-
-
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
 
 
 class ChangePasswordView(generics.UpdateAPIView):
@@ -106,7 +108,4 @@ class ChangePasswordView(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(
-            {"detail": "Password updated successfully."},
-            status=status.HTTP_200_OK,
-        )
+        return Response({"detail": "Password updated successfully."}, status=status.HTTP_200_OK)

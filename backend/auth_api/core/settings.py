@@ -4,16 +4,19 @@ from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(BASE_DIR / ".env")
 
-SECRET_KEY = env("SECRET_KEY", default="change-me-in-production")
-DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"]) + [
-    os.environ.get("RAILWAY_STATIC_URL", ""),
-    os.environ.get("RAILWAY_PUBLIC_DOMAIN", ""),
-]
+# ====================== SECURITY ======================
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env.bool("DEBUG", False)
 
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[
+    ".railway.app", "localhost", "127.0.0.1", "0.0.0.0"
+])
+
+# ====================== INSTALLED APPS ======================
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -28,6 +31,7 @@ INSTALLED_APPS = [
     "auth_app",
 ]
 
+# ====================== MIDDLEWARE ======================
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -43,26 +47,12 @@ ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 AUTH_USER_MODEL = "auth_app.User"
 
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ]
-        },
-    }
-]
-
+# ====================== DATABASE ======================
 DATABASES = {
     "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR}/db.sqlite3")
 }
 
+# ====================== REST FRAMEWORK ======================
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -70,6 +60,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
+# ====================== SIMPLE JWT ======================
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -78,40 +69,27 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-STATIC_URL = "/static/"
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-
-# In development (DEBUG=True) allow all origins so localhost works without config.
-# In production set CORS_ALLOWED_ORIGINS in your Railway env vars, e.g.:
-#   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
+# ====================== CORS ======================
 from corsheaders.defaults import default_headers
 
-# In development (DEBUG=True) allow all origins so localhost works without config.
-# In production set CORS_ALLOWED_ORIGINS in your Railway env vars, e.g.:
-#   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
+    "content-type",
+    "accept",
+    "origin",
+    "x-csrftoken",
+]
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
-    # Allow credentials in development so front-end can send cookies/credentials.
     CORS_ALLOW_CREDENTIALS = True
 else:
     CORS_ALLOWED_ORIGINS = env.list(
         "CORS_ALLOWED_ORIGINS",
-        default=["https://auth-demo-bay.vercel.app"],
+        default=["https://auth-demo-bay.vercel.app"]
     )
-    # Allow credentials in production only if explicitly enabled via env var.
-    CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=False)
+    CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=True)
 
-# Common dev host patterns (include 0.0.0.0 and IPv6 loopback).
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://localhost(:[0-9]+)?$",
-    r"^http://127\.0\.0\.1(:[0-9]+)?$",
-    r"^http://0\.0\.0\.0(:[0-9]+)?$",
-    r"^http://\[::1\](:[0-9]+)?$",
-]
-
-# Ensure Authorization header (JWT) is allowed in CORS preflight
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "authorization",
-]
+# ====================== STATIC & MISC ======================
+STATIC_URL = "/static/"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
