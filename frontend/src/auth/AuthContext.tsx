@@ -22,16 +22,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async login(email, password) {
         const payload = await apiRequest<AuthPayload>("/auth/login/", {
           method: "POST",
-          body: JSON.stringify({ username: email, password }),
+          body: JSON.stringify({ email, password }),
         });
         saveSession(payload);
         setSession(payload);
       },
-      async signup(name, email, password) {
+      async signup(
+        firstName: string,
+        lastName: string,
+        email: string,
+        password: string,
+      ) {
         const payload = await apiRequest<AuthPayload>("/auth/signup/", {
           method: "POST",
           body: JSON.stringify({
-            name,
+            first_name: firstName,
+            last_name: lastName,
             email,
             password,
             password_confirm: password,
