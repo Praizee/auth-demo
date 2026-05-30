@@ -143,7 +143,7 @@ async function runDemoRequest<T>(
     } as T;
   }
 
-  if (path === "/auth/profile/" && options.method === "PATCH") {
+  if (path === "/auth/account/" && options.method === "PATCH") {
     const session = getSavedSession();
     if (!session || !options.token) {
       throw new Error("Please log in again.");

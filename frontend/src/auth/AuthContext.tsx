@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Please log in again.");
         }
 
-        const user = await apiRequest<User>("/auth/profile/", {
+        const user = await apiRequest<User>("/auth/account/", {
           method: "PATCH",
           token: session.token,
           body: JSON.stringify(profile),
