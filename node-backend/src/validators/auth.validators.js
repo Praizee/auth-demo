@@ -14,15 +14,10 @@ const validate = (req, res, next) => {
 };
 
 const signupValidators = [
-  body('firstName')
+  body('name')
     .trim()
-    .notEmpty().withMessage('First name is required')
-    .isLength({ max: 50 }).withMessage('First name cannot exceed 50 characters'),
-
-  body('lastName')
-    .trim()
-    .notEmpty().withMessage('Last name is required')
-    .isLength({ max: 50 }).withMessage('Last name cannot exceed 50 characters'),
+    .notEmpty().withMessage('Name is required')
+    .isLength({ max: 100 }).withMessage('Name cannot exceed 100 characters'),
 
   body('email')
     .trim()

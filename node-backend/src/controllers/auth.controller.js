@@ -13,7 +13,9 @@ const generateToken = (userId) => {
 // POST /api/auth/signup
 const signup = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, role, bio } = req.body;
+    const { name, email, password, role, bio } = req.body;
+const [firstName, ...rest] = name.trim().split(' ');
+const lastName = rest.join(' ') || ' ';
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
