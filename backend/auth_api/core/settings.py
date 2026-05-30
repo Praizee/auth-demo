@@ -86,17 +86,32 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # In development (DEBUG=True) allow all origins so localhost works without config.
 # In production set CORS_ALLOWED_ORIGINS in your Railway env vars, e.g.:
 #   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
+from corsheaders.defaults import default_headers
+
+# In development (DEBUG=True) allow all origins so localhost works without config.
+# In production set CORS_ALLOWED_ORIGINS in your Railway env vars, e.g.:
+#   CORS_ALLOWED_ORIGINS=https://auth-demo-bay.vercel.app
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+    # Allow credentials in development so front-end can send cookies/credentials.
     CORS_ALLOW_CREDENTIALS = True
 else:
     CORS_ALLOWED_ORIGINS = env.list(
         "CORS_ALLOWED_ORIGINS",
         default=["https://auth-demo-bay.vercel.app"],
     )
+    # Allow credentials in production only if explicitly enabled via env var.
+    CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=False)
 
-# Allow Vite dev origins if the backend accidentally runs in a non-debug local environment.
+# Common dev host patterns (include 0.0.0.0 and IPv6 loopback).
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://localhost(:[0-9]+)?$",
     r"^http://127\.0\.0\.1(:[0-9]+)?$",
+    r"^http://0\.0\.0\.0(:[0-9]+)?$",
+    r"^http://\[::1\](:[0-9]+)?$",
+]
+
+# Ensure Authorization header (JWT) is allowed in CORS preflight
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
 ]
