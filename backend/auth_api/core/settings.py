@@ -90,17 +90,13 @@ from corsheaders.defaults import default_headers
 
 CORS_ALLOW_HEADERS = list(default_headers) + ["authorization", "content-type"]
 
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOW_CREDENTIALS = True
-else:
-    CORS_ALLOWED_ORIGINS = env.list(
-        "CORS_ALLOWED_ORIGINS",
-        default=["https://auth-demo-bay.vercel.app"]
-    )
-    CORS_ALLOW_CREDENTIALS = True
+# Force allow everything for now so CORS never bothers you again during development
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # ====================== STATIC ======================
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles" # <-- Add this line
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+WHITENOISE_MANIFEST_STRICT = False
