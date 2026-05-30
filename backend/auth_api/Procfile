@@ -1,2 +1,2 @@
-release: python manage.py migrate
-web: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+release: cd backend/auth_api && python manage.py migrate
+web: cd backend/auth_api && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
