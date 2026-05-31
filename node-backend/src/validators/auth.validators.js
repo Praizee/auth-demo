@@ -14,10 +14,15 @@ const validate = (req, res, next) => {
 };
 
 const signupValidators = [
-  body('name')
+  body('firstName')
     .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ max: 100 }).withMessage('Name cannot exceed 100 characters'),
+    .notEmpty().withMessage('First name is required')
+    .isLength({ max: 50 }).withMessage('First name cannot exceed 50 characters'),
+
+body('lastName')
+    .trim()
+    .notEmpty().withMessage('Last name is required')
+    .isLength({ max: 50 }).withMessage('Last name cannot exceed 50 characters'),
 
   body('email')
     .trim()
@@ -28,7 +33,7 @@ const signupValidators = [
   body('password')
     .notEmpty().withMessage('Password is required')
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    
+
   body('role')
     .optional()
     .isIn(['user', 'admin']).withMessage('Role must be "user" or "admin"'),
@@ -78,9 +83,7 @@ const updateAccountValidators = [
 
   body('password')
     .optional()
-    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-    .matches(/[0-9]/).withMessage('Password must contain at least one number'),
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
 
   // Prevent passing in sensitive/readonly fields
   body('email').not().exists().withMessage('Email cannot be updated via this endpoint'),
